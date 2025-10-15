@@ -162,3 +162,61 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json(logoutError);
   }
 };
+
+export const issueRefreshToken = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      const refreshTokenErrorResponse: MyResponse = {
+        success: false,
+        message: "token has been expired or invalid token",
+      };
+      res.status(401).json(refreshTokenErrorResponse);
+      return;
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        refreshToken,
+      },
+    });
+
+    if (!user) {
+      const userNotFound: MyResponse = {
+        success: false,
+        message: "User not found",
+      };
+      res.status(401).json(userNotFound);
+      return;
+    }
+    const { accessToken, refreshToken: newRefreshToken } = await generateToken(
+      user.id,
+      user.email,
+      user.role
+    );
+    await setToken(res, accessToken, newRefreshToken);
+    const updatedRefreshToken = await prisma.user.update({
+      where: { refreshToken },
+      data: {
+        refreshToken: newRefreshToken,
+      },
+    });
+    console.log(updatedRefreshToken, "New Refresh Token");
+
+    const successResponse: MyResponse = {
+      success: true,
+      message: "A new refresh-token has been successfully provided..",
+    };
+    res.status(200).json(successResponse);
+  } catch (error) {
+    const errorResponse: MyResponse = {
+      success: false,
+      message: "Internal server error",
+      error: error instanceof Error ? error.message : error,
+    };
+    res.status(500).json(errorResponse);
+  }
+};
