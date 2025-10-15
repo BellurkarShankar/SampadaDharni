@@ -1,6 +1,6 @@
 export type MyResponse = {
   success: boolean;
   message: String;
-  data?: any;
+  user?: any;
   error?: any;
 };
