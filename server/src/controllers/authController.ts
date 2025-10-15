@@ -7,9 +7,19 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
   try {
     const validationResult = signUpSchema.safeParse(req.body);
     if (!validationResult.success) {
+      console.log(validationResult.error.message);
+      const exactIssue = validationResult.error.issues.map((issue) => {
+        return {
+          path: issue.path,
+          message: issue.message,
+        };
+      });
+      console.log(exactIssue);
+
       const validationError: MyResponse = {
         success: false,
-        message: validationResult.error.message,
+        message: "Validation Error",
+        error: exactIssue,
       };
       res.status(400).json(validationError);
       return;
