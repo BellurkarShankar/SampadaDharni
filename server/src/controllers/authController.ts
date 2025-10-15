@@ -3,6 +3,9 @@ import { MyResponse } from "../types/myResponse";
 import { signUpSchema } from "../validation/signUpSchema";
 import bcrypt from "bcryptjs";
 import { prisma } from "../server";
+import { loginSchema } from "../validation/loginSchema";
+import { generateToken } from "../utils/generateToken";
+import { setToken } from "../utils/setToken";
 export const signUp = async (req: Request, res: Response): Promise<void> => {
   try {
     const validationResult = signUpSchema.safeParse(req.body);
@@ -14,7 +17,6 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
           message: issue.message,
         };
       });
-      console.log(exactIssue);
 
       const validationError: MyResponse = {
         success: false,
@@ -57,13 +59,85 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
     const successResponse: MyResponse = {
       success: true,
       message: "User has been created Successfully..",
-      data: newUser,
+      user: {
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        userId: newUser.id,
+      },
     };
     res.status(200).json(successResponse);
   } catch (error) {
     const errorResponse: MyResponse = {
       message: "Internal server error",
       success: false,
+      error: error instanceof Error ? error.message : error,
+    };
+    res.status(500).json(errorResponse);
+  }
+};
+
+export const login = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const credentialValidation = loginSchema.safeParse(req.body);
+
+    if (!credentialValidation.success) {
+      const exactIssue = credentialValidation.error.issues.map((issue) => {
+        return {
+          path: issue.path,
+          message: issue.message,
+        };
+      });
+      const validationError: MyResponse = {
+        success: false,
+        message: "Validation Error",
+        error: exactIssue,
+      };
+      res.status(400).json(validationError);
+      return;
+    }
+
+    const { email, password } = credentialValidation.data;
+
+    const isUserPresent = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (
+      !isUserPresent ||
+      !(await bcrypt.compare(password, isUserPresent.password))
+    ) {
+      const loginFailedResponse: MyResponse = {
+        success: false,
+        message: "Login Failed! Invalid Credentials",
+      };
+      res.status(401).json(loginFailedResponse);
+      return;
+    }
+    const { accessToken, refreshToken } = await generateToken(
+      isUserPresent?.id,
+      isUserPresent?.email,
+      isUserPresent?.role
+    );
+    await setToken(res, accessToken, refreshToken);
+
+    const loginSuccessResponse: MyResponse = {
+      success: true,
+      message: "User logged-In Successfully",
+      user: {
+        name: isUserPresent.name,
+        email: isUserPresent.email,
+        role: isUserPresent.role,
+        userId: isUserPresent.id,
+      },
+    };
+    res.status(200).json(loginSuccessResponse);
+  } catch (error) {
+    const errorResponse: MyResponse = {
+      success: false,
+      message: "Internal server error",
       error: error instanceof Error ? error.message : error,
     };
     res.status(500).json(errorResponse);
