@@ -143,3 +143,22 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json(errorResponse);
   }
 };
+
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  try {
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+    const logoutSuccessResponse: MyResponse = {
+      success: true,
+      message: "User Logged Out successfully..",
+    };
+    res.status(200).json(logoutSuccessResponse);
+  } catch (error) {
+    const logoutError: MyResponse = {
+      success: false,
+      message: "Internal server error",
+      error: error instanceof Error ? error.message : error,
+    };
+    res.status(500).json(logoutError);
+  }
+};
