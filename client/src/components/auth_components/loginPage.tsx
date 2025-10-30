@@ -10,6 +10,7 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import { Badge } from "../ui/badge";
 import { toast } from "sonner";
+import { signUpProtectionRulesAction } from "@/actions/auth";
 const LoginPage = () => {
   const [isPendinng, startTransition] = useTransition();
   const form = useForm<LoginPageSchemaType>({
@@ -23,8 +24,10 @@ const LoginPage = () => {
 
   const handleFormSubmit = async (data: LoginPageSchemaType) => {
     console.log(data);
+
     startTransition(async () => {
       try {
+        console.log("Handle called from signUp");
       } catch (error) {
         console.log(error);
         toast.error(

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { Form } from "../ui/form";
 import { FormDataOfSignUpPage } from "./authFormData";
@@ -9,8 +9,11 @@ import Link from "next/link";
 import { Badge } from "../ui/badge";
 import { registerPageSchema, RegisterPageSchemaType } from "./authSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { signUpProtectionRulesAction } from "@/actions/auth";
 
 const SignUpPage = () => {
+  const [isPendinng, startTransition] = useTransition();
   const form = useForm<RegisterPageSchemaType>({
     resolver: zodResolver(registerPageSchema),
     mode: "onChange",
@@ -23,6 +26,21 @@ const SignUpPage = () => {
   });
   const handleSignUp = async (signUpData: RegisterPageSchemaType) => {
     console.log(signUpData, "signUpData");
+    startTransition(async () => {
+      const validateSignUpRule = await signUpProtectionRulesAction(
+        signUpData.email
+      );
+      console.log("Check validation :", validateSignUpRule);
+
+      if (!validateSignUpRule.success) {
+        console.log(validateSignUpRule.error);
+
+        toast.error(validateSignUpRule.error, {
+          description: "From Arcjet",
+        });
+        return;
+      }
+    });
   };
   return (
     <Form {...form}>
