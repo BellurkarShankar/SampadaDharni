@@ -31,7 +31,7 @@ app.use((req, res, next) => {
     logger.info(
       `${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`
     );
-    if (Object.keys(req.body).length) {
+    if (req.body && Object.keys(req.body).length) {
       logger.debug(`Request body: ${JSON.stringify(req.body)}`);
     }
   });
