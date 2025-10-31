@@ -121,6 +121,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       isUserPresent?.email,
       isUserPresent?.role
     );
+    const updateRefreshToken = await prisma.user.update({
+      data: {
+        refreshToken,
+      },
+      where: {
+        email: isUserPresent.email,
+      },
+    });
     await setToken(res, accessToken, refreshToken);
 
     const loginSuccessResponse: MyResponse = {
