@@ -10,9 +10,16 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import { Badge } from "../ui/badge";
 import { toast } from "sonner";
-import { signUpProtectionRulesAction } from "@/actions/auth";
+import {
+  signInProtectionRulesAction,
+  signUpProtectionRulesAction,
+} from "@/actions/auth";
+import useAuthStore from "@/store/useAuthStore";
+import { useRouter } from "next/navigation";
 const LoginPage = () => {
   const [isPendinng, startTransition] = useTransition();
+  const router = useRouter();
+  const { login, isLoading } = useAuthStore();
   const form = useForm<LoginPageSchemaType>({
     resolver: zodResolver(loginPageSchema),
     defaultValues: {
@@ -28,6 +35,30 @@ const LoginPage = () => {
     startTransition(async () => {
       try {
         console.log("Handle called from signUp");
+        const validationCheckUsingSignInProtection =
+          await signInProtectionRulesAction(data.email);
+        if (!validationCheckUsingSignInProtection.success) {
+          toast.error(validationCheckUsingSignInProtection.error);
+          return;
+        }
+        if (validationCheckUsingSignInProtection.success) {
+          const response = await login({
+            email: data.email,
+            password: data.password,
+          });
+          if (!response.success) {
+            toast.error(response.message);
+          }
+          toast.success(response.message);
+          const user = useAuthStore.getState().user;
+          if (user?.role === "SUPERADMIN") {
+            router.push("/super-admin");
+          } else if (user?.role === "USER") {
+            router.push("/user");
+          } else {
+            router.push("/auth/login");
+          }
+        }
       } catch (error) {
         console.log(error);
         toast.error(

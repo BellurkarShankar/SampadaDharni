@@ -11,9 +11,13 @@ import { registerPageSchema, RegisterPageSchemaType } from "./authSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { signUpProtectionRulesAction } from "@/actions/auth";
+import { useRouter } from "next/navigation";
+import useAuthStore from "@/store/useAuthStore";
 
 const SignUpPage = () => {
   const [isPendinng, startTransition] = useTransition();
+  const router = useRouter();
+  const { register, isLoading } = useAuthStore();
   const form = useForm<RegisterPageSchemaType>({
     resolver: zodResolver(registerPageSchema),
     mode: "onChange",
@@ -40,6 +44,16 @@ const SignUpPage = () => {
         });
         return;
       }
+      const response = await register({
+        email: signUpData.email,
+        name: signUpData.name,
+        password: signUpData.password,
+      });
+      if (!response.success) {
+        toast.error(response.message);
+      }
+      toast.success(response.message);
+      console.log(response.data, "userId");
     });
   };
   return (

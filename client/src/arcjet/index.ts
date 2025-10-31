@@ -1,4 +1,4 @@
-import arcjet, { protectSignup } from "@arcjet/next";
+import arcjet, { protectSignup, validateEmail } from "@arcjet/next";
 
 export const signUpProtectionRules = arcjet({
   key: process.env.ARCJET_KEY!,
@@ -17,6 +17,16 @@ export const signUpProtectionRules = arcjet({
         max: 5,
         interval: "10m",
       },
+    }),
+  ],
+});
+
+export const signInProtectionRules = arcjet({
+  key: process.env.ARCJET_KEY!,
+  rules: [
+    validateEmail({
+      mode: "LIVE",
+      deny: ["DISPOSABLE", "INVALID", "NO_MX_RECORDS"],
     }),
   ],
 });
