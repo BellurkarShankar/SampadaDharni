@@ -6,6 +6,7 @@ import { prisma } from "../server";
 import { loginSchema } from "../validation/loginSchema";
 import { generateToken } from "../utils/generateToken";
 import { setToken } from "../utils/setToken";
+import jwt from "jsonwebtoken";
 export const signUp = async (req: Request, res: Response): Promise<void> => {
   try {
     const validationResult = signUpSchema.safeParse(req.body);
@@ -185,11 +186,31 @@ export const issueRefreshToken = async (
       res.status(401).json(refreshTokenErrorResponse);
       return;
     }
-    const user = await prisma.user.findUnique({ where: { refreshToken } });
-    if (!user) {
+    let decodedRefreshToken;
+    try {
+      decodedRefreshToken = jwt.verify(
+        refreshToken,
+        process.env.JWT_SECRET as string
+      ) as {
+        id: string;
+        name: string | null;
+        email: string;
+        role: string;
+      };
+    } catch {
+      res.status(403).json({
+        success: false,
+        message: "Invalid refresh token",
+      });
+      return;
+    }
+    const user = await prisma.user.findUnique({
+      where: { id: decodedRefreshToken.id },
+    });
+    if (!user || user.refreshToken !== refreshToken) {
       const userNotFound: MyResponse = {
         success: false,
-        message: "User not found",
+        message: "Refresh token mismatch or User not found",
       };
       res.status(401).json(userNotFound);
       return;
@@ -201,7 +222,7 @@ export const issueRefreshToken = async (
     );
     await setToken(res, accessToken, newRefreshToken);
     const updatedRefreshToken = await prisma.user.update({
-      where: { refreshToken },
+      where: { id: user.id },
       data: { refreshToken: newRefreshToken },
     });
     const successResponse: MyResponse = {
