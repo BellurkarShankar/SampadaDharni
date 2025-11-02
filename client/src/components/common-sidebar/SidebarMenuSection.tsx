@@ -4,7 +4,7 @@ import { CardContent } from "../ui/card";
 import { MenuItemType } from "@/utils/menuItems";
 import Link from "next/link";
 import IconHub from "./IconHub";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Badge } from "../ui/badge";
 
 const SidebarMenuSection = ({
@@ -15,6 +15,9 @@ const SidebarMenuSection = ({
   menuItem: MenuItemType[];
 }) => {
   const router = useRouter();
+  const pathName = usePathname();
+  console.log(pathName);
+
   return (
     <CardContent
       className={`relative flex flex-col  space-y-1  ${
@@ -25,17 +28,22 @@ const SidebarMenuSection = ({
     >
       {menuItem && menuItem.length > 0
         ? menuItem.map((menu: MenuItemType, index: number) => {
+            console.log(menu.menuHref);
             return (
               <div
                 key={menu.menuLabel + index}
                 className={`group flex gap-4 items-center ${
+                  pathName === menu.menuHref
+                    ? "bg-accent text-accent-foreground rounded-xl"
+                    : ""
+                }  ${
                   isSidebarOpen
                     ? "px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
                     : "w-6 h-6 cursor-pointer"
                 }`}
-                onClick={() =>
-                  isSidebarOpen ? router.push("") : router.push(menu.menuHref)
-                }
+                onClick={() => {
+                  if (!isSidebarOpen) router.push(menu.menuHref);
+                }}
               >
                 <IconHub
                   iconName={menu.menuIcon}
@@ -64,7 +72,8 @@ const SidebarMenuSection = ({
 
                 <Link
                   href={menu.menuHref}
-                  className={`${!isSidebarOpen ? "hidden" : ""}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className={`${!isSidebarOpen ? "hidden" : ""} `}
                 >
                   {menu.menuLabel}
                 </Link>
