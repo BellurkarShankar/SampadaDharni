@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { API_ROUTE, AuthStore } from "@/utils/api";
 import { persist } from "zustand/middleware";
 const axiosInstance = axios.create({

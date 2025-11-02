@@ -1,0 +1,79 @@
+"use client";
+import React from "react";
+import { CardContent } from "../ui/card";
+import { MenuItemType } from "@/utils/menuItems";
+import Link from "next/link";
+import IconHub from "./IconHub";
+import { useRouter } from "next/navigation";
+import { Badge } from "../ui/badge";
+
+const SidebarMenuSection = ({
+  menuItem,
+  isSidebarOpen,
+}: {
+  isSidebarOpen: boolean;
+  menuItem: MenuItemType[];
+}) => {
+  const router = useRouter();
+  return (
+    <CardContent
+      className={`relative flex flex-col  space-y-1  ${
+        isSidebarOpen
+          ? "gap-4 py-4 mt-8 border-none rounded-none shadow-none"
+          : "gap-6 pr-0 pl-0 mt-10"
+      }`}
+    >
+      {menuItem && menuItem.length > 0
+        ? menuItem.map((menu: MenuItemType, index: number) => {
+            return (
+              <div
+                key={menu.menuLabel + index}
+                className={`group flex gap-4 items-center ${
+                  isSidebarOpen
+                    ? "px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                    : "w-6 h-6 cursor-pointer"
+                }`}
+                onClick={() =>
+                  isSidebarOpen ? router.push("") : router.push(menu.menuHref)
+                }
+              >
+                <IconHub
+                  iconName={menu.menuIcon}
+                  className={`${
+                    isSidebarOpen
+                      ? "w-4 h-4"
+                      : !isSidebarOpen && menu.menuIcon === "HeartPlus"
+                      ? "w-6 h-5 text-red-500"
+                      : "w-6 h-5"
+                  }`}
+                />
+                <span
+                  className={`absolute ml-8 w-32 hidden group-hover:block ${
+                    isSidebarOpen ? "hidden" : ""
+                  }`}
+                >
+                  <Badge
+                    variant={"outline"}
+                    className={`scale-80 group-hover:slide-in-from-left-2 group-hover:animate-in group-hover:zoom-in-95 group-hover:-translate-y-1 group-hover:scale-110 ${
+                      isSidebarOpen ? "hidden" : ""
+                    }`}
+                  >
+                    {menu.menuLabel}
+                  </Badge>
+                </span>
+
+                <Link
+                  href={menu.menuHref}
+                  className={`${!isSidebarOpen ? "hidden" : ""}`}
+                >
+                  {menu.menuLabel}
+                </Link>
+              </div>
+            );
+          })
+        : null}
+    </CardContent>
+  );
+};
+
+export default SidebarMenuSection;

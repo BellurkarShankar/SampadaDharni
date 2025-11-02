@@ -17,7 +17,7 @@ export const generateToken = async (
     },
     process.env.JWT_SECRET as string,
     {
-      expiresIn: "1hr",
+      expiresIn: "1d",
     }
   );
 
