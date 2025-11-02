@@ -26,6 +26,57 @@ model User {
   refreshToken String?   @unique
 }
 
+model Product {
+  id          String    @id @default(cuid())
+  name        String
+  description String
+  brand       String
+  category    String
+  gender      Gender
+  sizes       String[]
+  colors      String[]
+  price       Float
+  stock       Int
+  soldCount   Int
+  rating      Float?
+  tags        String[]
+  images      String[]
+  reviews     Review[]
+  variants    Variant[]
+  isFeatured  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  userId    String
+  rating    Float
+  comment   String
+  createdAt DateTime @default(now())
+}
+
+model Variant {
+  id        String   @id @default(cuid())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  color     String
+  size      String
+  stock     Int
+  price     Float
+  images    String[]
+
+  @@unique([productId, color, size])
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
 enum Role {
   USER
   SUPERADMIN
