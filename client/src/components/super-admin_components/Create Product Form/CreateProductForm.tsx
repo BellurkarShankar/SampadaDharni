@@ -33,6 +33,7 @@ import VariantLists from "../ShowVarients/VarientLists";
 import { Atom, Eye, ShoppingBasket, Sprout } from "lucide-react";
 import axios from "axios";
 import { RecentProductsType } from "@/utils/productTypes";
+import { createProductProtection } from "@/actions/productActions";
 const CreateProductForm = ({
   handleRecentProductList,
   productToBeEdit,
@@ -85,13 +86,19 @@ const CreateProductForm = ({
   const handleProductSubmit = async (productData: ProductSchemaType) => {
     startTransition(async () => {
       try {
+        const arcjetResponse = await createProductProtection();
+        if (!arcjetResponse.success) {
+          toast.error(arcjetResponse.message);
+          return;
+        }
         if (
           uploadedImageUrls &&
           uploadedImageUrls.length !== 0 &&
           tags &&
           tags.length !== 0 &&
           variants &&
-          variants.length > 0
+          variants.length > 0 &&
+          arcjetResponse.success
         ) {
           const { variant, ...rest } = productData;
           const ProductDetails = {
@@ -135,7 +142,21 @@ const CreateProductForm = ({
   };
 
   const handleEditSubmit = async (editedProduct: ProductSchemaType) => {
-    if (variants.length > 0 && tags.length > 0 && productToBeEdit?.id) {
+    const arcjetResponse = await createProductProtection();
+    if (!arcjetResponse.success) {
+      toast.error(arcjetResponse.message);
+      console.log(arcjetResponse);
+      return;
+    }
+    toast.success(arcjetResponse.message);
+    console.log(arcjetResponse);
+
+    if (
+      variants.length > 0 &&
+      tags.length > 0 &&
+      productToBeEdit?.id &&
+      arcjetResponse.success
+    ) {
       const ProductDetails = {
         ...editedProduct,
         isFeatured: Boolean(isFeatured),
