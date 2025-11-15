@@ -16,7 +16,7 @@ const SidebarMenuSection = ({
 }) => {
   const router = useRouter();
   const pathName = usePathname();
-  console.log(pathName);
+  // console.log(pathName);
 
   return (
     <CardContent
@@ -28,7 +28,7 @@ const SidebarMenuSection = ({
     >
       {menuItem && menuItem.length > 0
         ? menuItem.map((menu: MenuItemType, index: number) => {
-            console.log(menu.menuHref);
+            // console.log(menu.menuHref);
             return (
               <div
                 key={menu.menuLabel + index}
@@ -56,13 +56,13 @@ const SidebarMenuSection = ({
                   }`}
                 />
                 <span
-                  className={`absolute ml-8 w-32 hidden group-hover:block ${
+                  className={`hidden absolute ml-8 w-32 group-hover:block ${
                     isSidebarOpen ? "hidden" : ""
                   }`}
                 >
                   <Badge
                     variant={"outline"}
-                    className={`scale-80 group-hover:slide-in-from-left-2 group-hover:animate-in group-hover:zoom-in-95 group-hover:-translate-y-1 group-hover:scale-110 ${
+                    className={`bg-background scale-80 animate-out zoom-out-95 group-hover:slide-in-from-left-2 group-hover:animate-in group-hover:zoom-in-95 group-hover:-translate-y-1 group-hover:scale-110 ${
                       isSidebarOpen ? "hidden" : ""
                     }`}
                   >

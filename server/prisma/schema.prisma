@@ -45,7 +45,7 @@ model Product {
 
 model Variant {
   id        String   @id @default(cuid())
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
   color     String
   size      String
@@ -59,7 +59,7 @@ model Variant {
 
 model Review {
   id        String   @id @default(cuid())
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
   userId    String
   rating    Float

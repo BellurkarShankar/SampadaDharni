@@ -13,11 +13,11 @@ const SuperAdminLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <section className="flex min-h-screen max-w-screen">
       <aside
-        className={`h-screen border-r px-4 py-2 ${
-          isSidebarOpen ? "w-64" : "w-16"
-        } `}
+        className={`hidden fixed z-40 min-h-screen border-r px-4 py-2 bg-background ${
+          isSidebarOpen ? "md:w-64 lg:w-64" : "w-16"
+        } md:block lg:block`}
       >
-        <Card className="flex flex-col border-none gap-4 rounded-none shadow-none  pl-0 pr-0">
+        <Card className="flex flex-col border-none gap-4 rounded-none shadow-none pl-0 pr-0 w-full h-full">
           <SidebarHeaderSection
             isSidebarOpen={isSidebarOpen}
             setSidebarOpenClose={setSidebarOpenClose}
@@ -29,7 +29,13 @@ const SuperAdminLayout = ({ children }: { children: React.ReactNode }) => {
           <SidebarFooterSection isSidebarOpen={isSidebarOpen} logout={logout} />
         </Card>
       </aside>
-      <main>{children}</main>
+      <main
+        className={`${
+          isSidebarOpen ? "md:ml-64 lg:ml-64 z-10" : "ml-16"
+        } h-full w-full`}
+      >
+        {children}
+      </main>
     </section>
   );
 };

@@ -4,7 +4,7 @@ import { Input } from "../ui/input";
 
 type InputFieldType = {
   name?: string;
-  type: string;
+  type?: string;
   placeholder?: string;
   fields: any;
 };
@@ -15,12 +15,12 @@ const InputText = ({ type, placeholder, fields, name }: InputFieldType) => {
       type={type}
       placeholder={placeholder}
       {...fields}
-      className={`${
+      className={`w-full ${
         name === "email" ||
         name === "name" ||
         name === "password" ||
         name === "confirmPassword"
-          ? "w-full h-14 my-2 px-4 text-[16px]"
+          ? "h-14 my-2 px-4 text-[16px]"
           : ""
       }`}
     />
