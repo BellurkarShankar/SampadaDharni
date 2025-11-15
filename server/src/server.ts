@@ -8,6 +8,7 @@ import { PrismaClient } from "../generated/prisma";
 import authRoute from "./routes/authRoute";
 import { startServer } from "./utils/startServer";
 import logger from "./utils/logger/logger";
+import { adminRoute } from "./routes/adminRoutes";
 export const app = express();
 export const prisma = new PrismaClient();
 
@@ -40,6 +41,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/auth", authRoute);
+app.use("/api/product", adminRoute);
 startServer();
 
 process.on("unhandledRejection", (reason, promise) => {
